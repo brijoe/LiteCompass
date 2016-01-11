@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">指南针</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="north">北纬</string>
+    <string name="east">东经</string>
+    <string name="height">海拔</string>
+    <string name="default_digit">------</string>
+
+</resources>
