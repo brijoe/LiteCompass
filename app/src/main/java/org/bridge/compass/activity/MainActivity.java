@@ -143,14 +143,14 @@ public class MainActivity extends Activity implements SensorEventListener,
         Sensor accelerometerSensor = sensorManager
                 .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, magneticSensor,
-                SensorManager.SENSOR_DELAY_GAME);
+                SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this, accelerometerSensor,
-                SensorManager.SENSOR_DELAY_GAME);
+                SensorManager.SENSOR_DELAY_UI);
 
     }
 
     /**
-     * 利用百度地图请求位置
+     * 利用百度地图请求经纬度位置
      */
     private void requestLocation() {
         mLocationClient = new LocationClient(getApplicationContext()); // 声明LocationClient类
@@ -218,7 +218,7 @@ public class MainActivity extends Activity implements SensorEventListener,
         SensorManager.getOrientation(R, values);
         // 将计算出的旋转角度取反，用于旋转指南针刻度盘
         float rotateDegree = -(float) Math.toDegrees(values[0]);
-        LogUtil.d("rotate deg", rotateDegree + "");
+        // LogUtil.d("rotate deg", rotateDegree + "");
         if (Math.abs(rotateDegree - lastRotateDegree) > 1) {
             RotateAnimation animation = new RotateAnimation(lastRotateDegree,
                     rotateDegree, Animation.RELATIVE_TO_SELF, 0.5f,

@@ -1,5 +1,6 @@
 <resources>
 
     <color name="white">#ffffff</color>
+    <color name="divider_line_color">#CFCFCF</color>
 
 </resources>

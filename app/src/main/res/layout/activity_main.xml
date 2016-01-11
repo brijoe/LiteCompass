@@ -42,10 +42,10 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp">
 
-        <ImageView
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:contentDescription="@null" />
+            android:layout_height="1px"
+            android:background="@color/divider_line_color" />
 
         <LinearLayout
             android:id="@+id/digit_bottom"
