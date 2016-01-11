@@ -54,7 +54,7 @@
             android:value="OqFtZT9mPcHMVmyZtMMV7tkK" />
 
         <activity
-            android:name="org.bridge.compass.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
