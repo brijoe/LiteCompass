@@ -1,0 +1,2 @@
+# LiteCompass
+A compass application.
