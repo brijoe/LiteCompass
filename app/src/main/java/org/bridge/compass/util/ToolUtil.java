@@ -109,6 +109,13 @@ public class ToolUtil {
 
     }
 
+    /**
+     * 取平方根
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     public static int SqrRoot(float x, float y) {
 
 

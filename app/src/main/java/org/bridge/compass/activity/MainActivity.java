@@ -37,6 +37,7 @@ import com.baidu.location.LocationClientOption.LocationMode;
  */
 public class MainActivity extends Activity implements SensorEventListener,
         BDLocationListener {
+    String TAG = "Pointer";
     /**
      * 切换页面
      */
@@ -211,6 +212,7 @@ public class MainActivity extends Activity implements SensorEventListener,
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             magneticValues = event.values.clone();
         }
+        //指南针
         float[] values = new float[3];
         float[] R = new float[9];
         SensorManager.getRotationMatrix(R, null, accelerometerValues,
@@ -232,63 +234,50 @@ public class MainActivity extends Activity implements SensorEventListener,
             txt_direction.setText(ToolUtil.DirectionStr(-rotateDegree));
         }
         // 水平仪
-        float gradienter_yAngle = (float) Math.toDegrees(values[1]);// 围绕X轴旋转夹角
-        float gradienter_zAngle = (float) Math.toDegrees(values[2]);// 围绕Y轴旋转夹角
+        float gradienter_xAngle = (float) Math.toDegrees(values[1]);// 围绕X轴旋转夹角
+        float gradienter_yAngle = (float) Math.toDegrees(values[2]);// 围绕Y轴旋转夹角
 
-        // txt_gradienter_offset.setText(ToolUtil.SqrRoot(gradienter_yAngle,
-        // gradienter_zAngle) + "°");
-        txt_gradienter_offset.setText(Math.round(gradienter_yAngle) + "°"
-                + Math.round(gradienter_zAngle) + "°");
+        txt_gradienter_offset.setText(ToolUtil.SqrRoot(gradienter_xAngle, gradienter_yAngle) + "°");
 
-        int circle_w = gradienterView.circle.getWidth();
-        int circle_h = gradienterView.circle.getHeight();
-        int pointer_w = gradienterView.pointer.getWidth();
-        int pointer_h = gradienterView.pointer.getHeight();
         // 游标位于中间时（水平仪完全水平），游标的x,y坐标
-        int x = (circle_w - pointer_w) / 2;
-        int y = (circle_h - pointer_h) / 2;
-        // 如果Z轴的倾斜角还在最大角度之内
-        if (Math.abs(gradienter_zAngle) <= MAX_ANGLE) {
-            // 根据与z轴的倾斜角度计算x坐标的变化值
-            int deltaX = (int) ((circle_w - pointer_w) / 2 * gradienter_zAngle / MAX_ANGLE);
-            x += deltaX;
-        }
-        // 如果与z轴的倾斜角已经大于MAX_ANGLE,气泡应到最左边
-        else if (gradienter_zAngle > MAX_ANGLE) {
-            x = 0;
-        }
-        // 如果与z轴的倾斜角已经小于负的MAX_ANGLE,气泡应到最右边
-        else {
-            x = circle_w - pointer_w;
-        }
-        if (Math.abs(gradienter_yAngle) <= MAX_ANGLE) {
-            // 根据与y轴的倾斜角度计算y坐标的变化值
-            int deltaY = (int) ((circle_h - pointer_h) / 2 * gradienter_yAngle / MAX_ANGLE);
-            // if(Math.abs(d)deltaY)
+        int x = gradienterView.getCenterX();
+        int y = gradienterView.getCenterY();
+        LogUtil.d(TAG, "中心坐标，x=" + x + ",y=" + y);
+        // 如果X轴的倾斜角还在最大角度之内
+        if (Math.abs(gradienter_xAngle) <= MAX_ANGLE) {
+            // 根据与x轴的倾斜角度计算y坐标的变化值
+            int deltaY = (int) (gradienterView.getCenterY() * gradienter_xAngle / MAX_ANGLE);
             y += deltaY;
         }
-        // 如果与y轴的倾斜角已经大于MAX_ANGLE,气泡应到最下边
-        else if (gradienter_yAngle > MAX_ANGLE) {
-            y = circle_h - pointer_h;
+        // 如果与X轴的倾斜角已经大于MAX_ANGLE,气泡应到最下边
+        else if (gradienter_xAngle > MAX_ANGLE) {
+            y = gradienterView.getCenterY() * 2;
         }
-        // 如果与y轴的倾斜角已经小于负的MAX_ANGLE,气泡应到最右边
+        // 如果与z轴的倾斜角已经小于负的MAX_ANGLE,气泡应到最上边
         else {
             y = 0;
         }
+        if (Math.abs(gradienter_yAngle) <= MAX_ANGLE) {
+            // 根据与y轴的倾斜角度计算y坐标的变化值
+            int deltaX = (int) (gradienterView.getCenterX() * gradienter_yAngle / MAX_ANGLE);
+            x -= deltaX;
+        }
+        // 如果与y轴的倾斜角已经大于MAX_ANGLE,气泡应到最左边
+        else if (gradienter_yAngle > MAX_ANGLE) {
+            x = 0;
+        }
+        // 如果与y轴的倾斜角已经小于负的MAX_ANGLE,气泡应到最右边
+        else {
+            x = gradienterView.getCenterX() * 2;
+        }
         // 如果计算出来的x,y坐标还位于水平仪的仪表盘内，更新水平仪游标的坐标
         if (isContain(x, y)) {
-            gradienterView.pointerX = x;
-            gradienterView.pointerY = y;
-        }
-        // 通知系统重绘gradienterView组件
-        if (Math.abs(x - lastX) > 5 && Math.abs(y - lastY) < 3) {
-            LogUtil.d("on draw", "x=" + x + ",y=" + y);
+            gradienterView.setPointer(x, y);
             gradienterView.postInvalidate();
             lastX = x;
             lastY = y;
+            LogUtil.d(TAG, "x=" + lastX + ",y=" + lastY);
         }
-        //if()
-        gradienterView.postInvalidate();
     }
 
     /**
@@ -299,8 +288,8 @@ public class MainActivity extends Activity implements SensorEventListener,
      * @return
      */
     private boolean isContain(int x, int y) {
-        int circle_w = gradienterView.circle.getWidth();
-        int pointer_w = gradienterView.pointer.getWidth();
+        int circle_w = gradienterView.getCircleWidth();
+        int pointer_w = gradienterView.getPointerWidth();
         // 计算游标的圆心坐标x,y
         int pointerCx = x + pointer_w / 2;
         int pointerCy = y + pointer_w / 2;
